@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+enum MessageType {
+  PLAYER_JOIN_REQUEST = 0;
+  PLAYER_JOIN_APPROVED = 1;
+  PLAYER_MOVE = 2;
+  PLAYER_DISCONNECT = 3;
+}
+
+enum PlayerColor {
+  WHITE = 0;
+  BLACK = 1;
+}
+
+message NetworkMessage {
+  MessageType type = 1;
+  oneof payload {
+    PlayerJoinRequest player_join_request = 2;
+    PlayerJoinApproved player_join_approved = 3;
+    PlayerMove player_move = 4;
+    PlayerDisconnect player_disconnect = 5;
+  }
+}
+
+message PlayerJoinRequest {
+  string player_id = 1;
+}
+
+message PlayerJoinApproved {
+  string player_id = 1;
+  PlayerColor player_color = 2; // 0 - white, 1 - black
+}
+
+message PlayerMove {
+  PlayerColor player_color = 1;
+  uint32 tile_x = 2;
+  uint32 tile_y = 3;
+}
+
+message PlayerDisconnect {
+  uint32 player_id = 1;
+}
