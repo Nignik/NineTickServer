@@ -6,6 +6,7 @@
 #include <print>
 
 #include "Game.h"
+#include "messages.pb.h"
 
 class Client
 {
@@ -15,19 +16,17 @@ public:
 
 	void HandleSession();
 
-	//std::optional<json::object> ParseJson(const std::string& message);
-
 	bool IsInGame() const;
 	std::string GetGameID() const;
-	//std::string GetName() const;
 
 private:
-	//void Login(boost::json::object& obj); // Gives player a username
-	//void CreateGame(boost::json::object& obj);
-	//void JoinGame(boost::json::object& obj);
-	//void LeaveGame();
+	void handlePlayerJoinRequest(const PlayerJoinRequest& msg);
+	void handlePlayerMove(const PlayerMove& msg);
+	void handlePlayerDisconnect(const PlayerDisconnect& msg);
+
+	void sendPlayerJoinApproved();
 
 	std::shared_ptr<websocket::stream<tcp::socket>> mWs{};
 	std::shared_ptr<Game> mGame{};
-	std::string mName = "anonymous";
+	std::string mId = "anonymous";
 };

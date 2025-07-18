@@ -17,21 +17,20 @@ public:
 		return instance;
 	}
 
-	[[nodiscard]] std::shared_ptr<Game> CreateGame(std::string& gameID)
+	void CreateGame(const std::string& gameID)
 	{
 		std::scoped_lock<std::mutex> lock(m_mutex);
 		
 		if (m_games.contains(gameID))
 		{
 			std::cout << "Player requested to create a game with an already taken id." << std::endl;
-			return nullptr;
+			return;
 		}
 
 		m_games[gameID] = std::make_shared<Game>(gameID);
-		return m_games[gameID];
 	}
 
-	[[nodiscard]] std::shared_ptr<Game> JoinGame(std::string& gameID)
+	[[nodiscard]] std::shared_ptr<Game> JoinGame(std::shared_ptr<websocket::stream<tcp::socket>> ws,const std::string& gameID)
 	{
 		std::scoped_lock<std::mutex> lock(m_mutex);
 
@@ -41,10 +40,12 @@ public:
 			return nullptr;
 		}
 
+		m_games[gameID]->addPlayer(ws);
+
 		return m_games[gameID];
 	}
 
-	void QuitGame(std::string& gameID, std::shared_ptr<websocket::stream<tcp::socket>> ws)
+	void QuitGame(const std::string& gameID, std::shared_ptr<websocket::stream<tcp::socket>> ws)
 	{
 		if (!m_games.contains(gameID))
 			return;
@@ -57,7 +58,7 @@ public:
 		}
 	}
 
-	bool DoesGameExist(std::string& gameID) const
+	bool DoesGameExist(const std::string& gameID) const
 	{
 		return m_games.contains(gameID);
 	}

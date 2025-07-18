@@ -8,8 +8,10 @@ enum MessageType {
 }
 
 enum PlayerColor {
-  WHITE = 0;
-  BLACK = 1;
+  NONE = 0;
+  WHITE = 1;
+  BLACK = 2;
+  MIX = 3;
 }
 
 message NetworkMessage {
@@ -24,19 +26,21 @@ message NetworkMessage {
 
 message PlayerJoinRequest {
   string player_id = 1;
+  string game_id = 2;
 }
 
 message PlayerJoinApproved {
   string player_id = 1;
-  PlayerColor player_color = 2; // 0 - white, 1 - black
+  PlayerColor player_color = 2;
 }
 
 message PlayerMove {
-  PlayerColor player_color = 1;
-  uint32 tile_x = 2;
-  uint32 tile_y = 3;
+  string player_id = 1;
+  PlayerColor player_color = 2;
+  int32 tile_row = 3;
+  int32 tile_col = 4;
 }
 
 message PlayerDisconnect {
-  uint32 player_id = 1;
+  string player_id = 1;
 }
