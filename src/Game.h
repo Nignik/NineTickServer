@@ -12,6 +12,8 @@ public:
     Game(const std::string& id);
 
     void MessageAllPlayers(NetworkMessage msg);
+
+    [[nodiscard]] std::string GetId() const;
     [[nodiscard]] uint32_t GetNumberOfPlayers() const;
 
 private:

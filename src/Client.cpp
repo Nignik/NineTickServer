@@ -27,9 +27,8 @@ void Client::HandleSession()
                 handlePlayerJoinRequest(msg.player_join_request());
                 break;
             case PLAYER_MOVE:
-                handlePlayerMove(msg.player_move());
+                handlePlayerMove(msg);
                 break;
-            case PLAYER_DISCONNECT:
 
             default:
                 std::println("Unknown message type received");
@@ -39,8 +38,8 @@ void Client::HandleSession()
     }
 }
 
-bool Client::IsInGame() const { return true; }
-std::string Client::GetGameID() const { return "defaultid"; }
+bool Client::IsInGame() const { return mGame != nullptr; }
+std::string Client::GetGameID() const { return mGame->GetId(); }
 
 void Client::handlePlayerJoinRequest(const PlayerJoinRequest& msg)
 {
@@ -59,33 +58,16 @@ void Client::handlePlayerJoinRequest(const PlayerJoinRequest& msg)
 
     PlayerJoinApproved* payload = approvalMsg.mutable_player_join_approved();
     payload->set_player_id(mId);
-    payload->set_player_color(mGame->GetNumberOfPlayers() == 1 ? WHITE : BLACK); // If there is one player, then thats us
+    payload->set_player_color(mGame->GetNumberOfPlayers() == 1 ? WHITE : BLACK); // If there is one player, then that's us
 
     std::string serialized;
     approvalMsg.SerializeToString(&serialized);
     mWs->write(asio::buffer(serialized));
 }
 
-void Client::handlePlayerMove(const PlayerMove& msg)
+void Client::handlePlayerMove(NetworkMessage msg)
 {
-    std::println("Player {} made a move to (row: {}, column: {})", msg.player_id(), msg.tile_row(), msg.tile_row());
-    NetworkMessage networkMsg;
-    PlayerMove moveMsg = msg;
-    networkMsg.set_type(PLAYER_MOVE);
-    networkMsg.set_allocated_player_move(&moveMsg);
-    mGame->MessageAllPlayers(networkMsg);
+    PlayerMove move = msg.player_move();
+    std::println("Player {} made a move to (row: {}, column: {})", move.player_id(), move.tile_row(), move.tile_row());
+    mGame->MessageAllPlayers(msg);
 }
-
-void Client::handlePlayerDisconnect(const PlayerDisconnect& msg)
-{
-   std::println("Player {} disconnected", msg.player_id());
-}
-
-void Client::sendPlayerJoinApproved()
-{
-
-
-
-}
-
-

@@ -12,7 +12,7 @@ void Game::MessageAllPlayers(NetworkMessage msg)
         ws->write(asio::buffer(serialized));
 }
 
-
+std::string Game::GetId() const { return mId; }
 uint32_t Game::GetNumberOfPlayers() const { return mPlayers.size(); }
 
 void Game::addPlayer(std::shared_ptr<websocket::stream<tcp::socket>> ws)
@@ -20,4 +20,7 @@ void Game::addPlayer(std::shared_ptr<websocket::stream<tcp::socket>> ws)
     mPlayers.insert(ws);
 }
 
-void Game::disconnectPlayer(std::shared_ptr<websocket::stream<tcp::socket>> ws) {}
+void Game::disconnectPlayer(std::shared_ptr<websocket::stream<tcp::socket>> ws)
+{
+    mPlayers.erase(ws);
+}

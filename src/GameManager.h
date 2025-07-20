@@ -5,7 +5,7 @@
 
 #include <unordered_map>
 #include <string>
-#include <iostream>
+#include <print>
 #include <mutex>
 
 class GameManager
@@ -23,7 +23,7 @@ public:
 		
 		if (m_games.contains(gameID))
 		{
-			std::cout << "Player requested to create a game with an already taken id." << std::endl;
+			std::println("Player requested to create a game with an already taken id.");
 			return;
 		}
 
@@ -36,7 +36,13 @@ public:
 
 		if (!m_games.contains(gameID))
 		{
-			std::cout << "Player requested to join a game that doesn't exist." << std::endl;
+			std::println("Player requested to join a game that doesn't exist.");
+			return nullptr;
+		}
+
+		if (m_games[gameID]->GetNumberOfPlayers() >= 2)
+		{
+			std::println("Cannot join game {}, it is already full.", gameID);
 			return nullptr;
 		}
 
@@ -47,6 +53,8 @@ public:
 
 	void QuitGame(const std::string& gameID, std::shared_ptr<websocket::stream<tcp::socket>> ws)
 	{
+		std::scoped_lock<std::mutex> lock(m_mutex);
+
 		if (!m_games.contains(gameID))
 			return;
 
@@ -54,7 +62,7 @@ public:
 		if (m_games[gameID]->GetNumberOfPlayers() == 0)
 		{
 			m_games.erase(gameID);
-			std::cout << "Game: " << gameID << "has been closed\n";
+			std::println("Game: {} has been closed", gameID);
 		}
 	}
 
